@@ -1,7 +1,11 @@
 {
+  "version": 2,
   "functions": {
-    "api/*.js": {
-      "includeFiles": "lib/**"
+    "api/**/*.js": {
+      "runtime": "nodejs18.x",
+      "includeFiles": [
+        "lib/**"
+      ]
     }
   }
 }
