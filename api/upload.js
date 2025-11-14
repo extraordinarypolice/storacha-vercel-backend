@@ -1,10 +1,10 @@
-import { uploadFile } from "../lib/store.js";
+import formidable from "formidable";
 import fs from "fs";
-import { IncomingForm } from "formidable";
+import { uploadFile } from "../lib/store.js";
 
 export const config = {
   api: {
-    bodyParser: false, // Required!
+    bodyParser: false,
   },
 };
 
@@ -13,7 +13,7 @@ export default function handler(req, res) {
     return res.status(405).json({ error: "POST only" });
   }
 
-  const form = new IncomingForm();
+  const form = formidable({});
 
   form.parse(req, async (err, fields, files) => {
     try {
@@ -22,7 +22,7 @@ export default function handler(req, res) {
         return res.status(500).json({ error: err.message });
       }
 
-      const file = files.file;
+      const file = files.file?.[0];
       if (!file) {
         return res.status(400).json({ error: "No file uploaded" });
       }
