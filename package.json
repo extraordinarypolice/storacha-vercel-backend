@@ -1,0 +1,10 @@
+{
+  "name": "storacha-vercel-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@storacha/client": "latest",
+    "formdata-node": "latest",
+    "busboy": "latest"
+  }
+}
