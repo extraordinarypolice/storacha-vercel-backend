@@ -1,36 +1,19 @@
-import busboy from "busboy"
-import { uploadFile } from "../lib/store.js"
+import { uploadFile } from '../lib/store.js'
 
 export const config = {
-  api: {
-    bodyParser: false
-  }
+  runtime: "nodejs18.x",
 }
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" })
+  try {
+    const formData = await req.formData()
+    const file = formData.get("file")
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+
+    const cid = await uploadFile(buffer)
+    return res.status(200).json({ cid })
+  } catch (err) {
+    return res.status(500).json({ error: err.message })
   }
-
-  const bb = busboy({ headers: req.headers })
-  let fileUploaded = null
-
-  bb.on("file", (fieldname, file, filename) => {
-    const chunks = []
-    file.on("data", (d) => chunks.push(d))
-    file.on("end", () => {
-      fileUploaded = { buffer: Buffer.concat(chunks), filename }
-    })
-  })
-
-  bb.on("finish", async () => {
-    if (!fileUploaded) {
-      return res.status(400).json({ error: "No file uploaded" })
-    }
-
-    const root = await uploadFile(fileUploaded.buffer)
-    return res.status(200).json({ root })
-  })
-
-  req.pipe(bb)
 }
