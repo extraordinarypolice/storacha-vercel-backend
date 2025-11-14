@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
-    "@storacha/client": "latest",
-    "formdata-node": "latest",
-    "formidable": "^3.5.4"
+    "@storacha/client": "^x.x.x",
+    "formidable": "^3.5.0"
   }
 }
