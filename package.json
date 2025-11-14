@@ -4,6 +4,7 @@
   "type": "module",
   "dependencies": {
     "@storacha/client": "latest",
-    "formdata-node": "latest"
+    "formdata-node": "latest",
+    "formidable": "^3.5.4"
   }
 }

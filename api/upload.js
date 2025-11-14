@@ -1,18 +1,29 @@
 import { uploadFile } from '../lib/store.js'
+import fs from 'fs'
+import { IncomingForm } from 'formidable'
 
 export const config = {
-  runtime: "nodejs18.x",
+  runtime: "nodejs",
+  api: {
+    bodyParser: false
+  }
 }
 
-export default async function handler(req, res) {
+export default function handler(req, res) {
   try {
-    const formData = await req.formData()
-    const file = formData.get("file")
-    const arrayBuffer = await file.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
+    const form = new IncomingForm()
 
-    const cid = await uploadFile(buffer)
-    return res.status(200).json({ cid })
+    form.parse(req, async (err, fields, files) => {
+      if (err) {
+        return res.status(500).json({ error: err.message })
+      }
+
+      const file = files.file
+      const buffer = await fs.promises.readFile(file.filepath)
+
+      const cid = await uploadFile(buffer)
+      return res.status(200).json({ cid })
+    })
   } catch (err) {
     return res.status(500).json({ error: err.message })
   }
