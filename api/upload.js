@@ -1,40 +1,42 @@
-import formidable from "formidable";
-import fs from "fs";
-import { storeFiles } from "../lib/store.js";
-
 export const config = {
   api: {
     bodyParser: false,
   },
 };
 
+import { storeFiles } from "../lib/store.js";
+
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method Not Allowed" });
-  }
-
   try {
-    const form = formidable({ multiples: true, keepExtensions: true });
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method Not Allowed" });
+    }
 
-    const files = await new Promise((resolve, reject) => {
-      form.parse(req, (err, fields, files) => {
-        if (err) reject(err);
-        resolve(files);
-      });
-    });
+    // Parse multipart form using Web API (supported by Vercel)
+    const formData = await req.formData();
 
-    const uploaded = [].concat(files.files || files.file || []);
+    const files = formData.getAll("files");
+    if (!files || files.length === 0) {
+      return res.status(400).json({ error: "No files uploaded" });
+    }
 
     const results = [];
-    for (const file of uploaded) {
-      const buffer = fs.readFileSync(file.filepath);
-      const cid = await storeFiles(buffer, file.originalFilename);
-      results.push({ cid, file: file.originalFilename });
+
+    for (const file of files) {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const filename = file.name;
+
+      // Upload using your Storacha function
+      const cid = await storeFiles(buffer, filename);
+
+      results.push({ cid, file: filename });
     }
 
     return res.status(200).json({ uploaded: results });
   } catch (error) {
     console.error("UPLOAD ERROR:", error);
-    return res.status(500).json({ error: "Upload failed", message: error.message });
+    return res
+      .status(500)
+      .json({ error: "Upload failed", message: error.message });
   }
 }
