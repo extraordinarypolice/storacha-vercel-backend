@@ -10,6 +10,7 @@
   "dependencies": {
     "@web3-storage/w3up-client": "^15.0.0",
     "busboy": "^1.6.0",
-    "dotenv": "^16.0.0"
+    "dotenv": "^16.0.0",
+    "formidable": "^2.1.1"
   }
 }
